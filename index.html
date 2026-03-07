@@ -35,6 +35,10 @@ body { margin: 0; font-family: 'Inter', sans-serif; background: var(--app-bg); c
 .dynamic-item { border: 1px dashed var(--border); padding: 12px; border-radius: 6px; position: relative; margin-bottom: 12px; }
 .remove-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1.2rem; }
 
+/* Custom Toggle Switch Styles */
+.toggle-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text); }
+.toggle-label input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent); }
+
 /* Preview Area */
 .preview-area { flex: 1; display: flex; flex-direction: column; background: #000; }
 .topbar { height: 60px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: var(--sidebar-bg); }
@@ -44,7 +48,7 @@ body { margin: 0; font-family: 'Inter', sans-serif; background: var(--app-bg); c
 .cv-page { width: 210mm; min-height: 297mm; background: white; color: #000; padding: 20mm; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); box-sizing: border-box; }
 .cv-page h1, .cv-page h2, .cv-page h3, .cv-page p, .cv-page ul { margin: 0; padding: 0; }
 .cv-page ul { padding-left: 20px; margin: 5px 0 15px 0; }
-.cv-page li { margin-bottom: 4px; } /* Added spacing between bullet points */
+.cv-page li { margin-bottom: 4px; } 
 
 /* Templates */
 .template-1 { font-family: Arial, sans-serif; line-height: 1.5; }
@@ -92,7 +96,7 @@ body { margin: 0; font-family: 'Inter', sans-serif; background: var(--app-bg); c
   body * { visibility: hidden; }
   .cv-page, .cv-page * { visibility: visible; }
   .cv-page { position: absolute; left: 0; top: 0; width: 210mm; margin: 0; padding: 20mm; box-shadow: none; min-height: auto; }
-  .job, .edu-item { page-break-inside: avoid; }
+  .job, .edu-item, .custom-item { page-break-inside: avoid; }
 }
 </style>
 </head>
@@ -127,8 +131,29 @@ body { margin: 0; font-family: 'Inter', sans-serif; background: var(--app-bg); c
       <div id="education-list"></div>
       <button class="btn btn-secondary" style="width: 100%;" onclick="addEdu()">+ Add Education</button>
     </div>
+    
+    <!-- OPTIONAL Custom Section -->
+    <div class="form-section" style="border-color: var(--accent); background: rgba(99,102,241,0.05);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h2 style="margin: 0;">Custom Section <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">(Optional)</span></h2>
+        <label class="toggle-label">
+          <input type="checkbox" id="i-toggle-custom" onchange="toggleCustomSection(this.checked)"> Enable
+        </label>
+      </div>
+      
+      <!-- This body is hidden by default until toggle is checked -->
+      <div id="custom-section-body" style="display: none;">
+        <div class="input-group">
+          <label>Section Title (e.g. Projects, Volunteer)</label>
+          <input type="text" id="i-custom-title" placeholder="e.g. Key Projects">
+        </div>
+        <div id="custom-list"></div>
+        <button class="btn btn-secondary" style="width: 100%; border-color: var(--accent); color: var(--accent);" onclick="addCustom()">+ Add Custom Item</button>
+      </div>
+    </div>
+
     <div class="form-section">
-      <h2>Certifications</h2>
+      <h2>Certifications & Awards</h2>
       <div id="cert-list"></div>
       <button class="btn btn-secondary" style="width: 100%;" onclick="addCert()">+ Add Certification</button>
     </div>
@@ -164,26 +189,43 @@ body { margin: 0; font-family: 'Inter', sans-serif; background: var(--app-bg); c
 
 <script>
 let data = {
-  name: "John Doe", phone: "(555) 123-4567", email: "john@example.com", linkedin: "linkedin.com/in/johndoe", location: "New York, NY",
-  summary: "Senior Project Manager with 10+ years of experience in Agile Methodologies and Software Development. Proven track record of delivering text processing solutions.",
-  skills: "Project Management, Agile Methodologies, Scrum, Software Development, Python, CRM, React, System Architecture",
+  name: "Hady A. Herz", 
+  phone: "+201009526567", 
+  email: "abdelfatahhady@gmail.com", 
+  linkedin: "linkedin.com/in/hady-herz", 
+  location: "Dakhlia, Egypt",
+  summary: "Results-driven customer-focused professional with experience in client relationship management, account follow-up, and value-driven engagement. Background in pharmaceutical sales and healthcare service environments with strong ability to build trust, manage expectations, and drive long-term client satisfaction. Skilled in proactive communication, problem resolution, and identifying client needs to improve retention and loyalty. Committed to delivering measurable customer success outcomes through structured follow-up and strategic relationship management.",
+  skills: "Account Management, Client Retention & Loyalty, Relationship Building, Proactive Follow-Up, Needs Analysis, Objection Handling, Customer Education, Upselling Through Value Alignment, Expectation Management, Cross-Functional Collaboration",
   experience: [
     { 
-      title: "Senior Project Manager", 
-      company: "Tech Corp", 
-      dates: "Jan 2018 - Present", 
-      desc: "Managed a team of 10, increasing productivity by 15% over 6 months.\nSpearheaded new IT initiative resulting in $1M savings.\nCoordinated cross-functional teams to deliver projects on time." 
+      title: "Medical Representative Account Manager", 
+      company: "Pharmacon EG", 
+      dates: "2024–Present", 
+      desc: "Managed a portfolio of 100+ healthcare accounts and maintained consistent follow-ups\nBuilt and strengthened professional relationships with doctors and clinics\nIdentified client needs and aligned product value with their practice goals\nConducted product presentations and educational sessions\nTracked engagement patterns and adjusted communication strategy accordingly\nWorked toward retention, loyalty, and long-term account growth\nCoordinated with internal teams to ensure smooth order processing and client satisfaction" 
+    },
+    { 
+      title: "Community Pharmacist", 
+      company: "Aya Ahmed Pharmacy", 
+      dates: "2021–2024", 
+      desc: "Community Pharmacy – Egypt\nInterpreted patient speech across multiple Arabic dialects with high accuracy\nTranslated spoken medical complaints into structured written documentation\nIdentified emotional tone (anxiety, urgency, confusion) to adapt communication\nEnsured precision in medication counseling and written instructions\nMaintained strict confidentiality and documentation accuracy" 
     }
   ],
   education: [
-    { degree: "Bachelor of Science in Computer Science", institution: "University of Technology", year: "2015", location: "Boston, MA" }
+    { degree: "Bachelor of Clinical Pharmacy", institution: "University of Mansoura", year: "2022", location: "Mansoura, EG" }
+  ],
+  showCustom: false, // Default is OFF
+  customTitle: "Projects",
+  customItems: [
+    { title: "", subtitle: "", dates: "", desc: "" } // Starts with one empty item if enabled
   ],
   cert: [
-    { name: "Project Management Professional (PMP)", issuer: "PMI" }
+    { name: "Revenue Operations", issuer: "HubSpot Academy" },
+    { name: "Inbound Sales", issuer: "HubSpot Academy" },
+    { name: "Sales Force", issuer: "HubSpot Academy" }
   ],
   languages: [
-    { name: "English", proficiency: "Native" },
-    { name: "Spanish", proficiency: "Fluent" }
+    { name: "English", proficiency: "C1" },
+    { name: "Arabic", proficiency: "Native" }
   ],
   template: "template-1"
 };
@@ -195,12 +237,13 @@ function escapeHtml(unsafe) {
 
 function textToBullets(text) {
   if (!text) return '';
-  /* 
-   * BUG FIX: Changed split('\\n') to split(/\n|\\n/)
-   * This ensures it splits on ACTUAL "Enter" key presses (\n) 
-   * OR hardcoded strings (\\n) in the default data. 
-   */
   return text.split(/\n|\\n/).map(l => l.trim()).filter(Boolean).map(l => `<li>${escapeHtml(l)}</li>`).join('');
+}
+
+function toggleCustomSection(isShowing) {
+  data.showCustom = isShowing;
+  document.getElementById('custom-section-body').style.display = isShowing ? 'block' : 'none';
+  renderPreview();
 }
 
 function renderPreview() {
@@ -246,6 +289,27 @@ function renderPreview() {
       </div>`).join('')}</section>`;
   }
 
+  // Render Custom Section dynamically ONLY if enabled
+  if (data.showCustom && data.customItems && data.customItems.length) {
+    const sectionTitle = data.customTitle ? data.customTitle : "Custom Section";
+    // Check if there is actual content to render so we don't render an empty header
+    const hasContent = data.customItems.some(item => item.title || item.subtitle || item.desc);
+    
+    if (hasContent) {
+      html += `<section><h2>${escapeHtml(sectionTitle)}</h2>${data.customItems.map(item => `
+        <div class="custom-item" style="margin-bottom: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
+            <h3>${escapeHtml(item.title)}</h3>
+            <span style="font-style: normal; font-weight: 500;">${escapeHtml(item.dates)}</span>
+          </div>
+          <div class="meta" style="margin-bottom: 6px;">
+            <span style="font-style: italic;">${escapeHtml(item.subtitle)}</span>
+          </div>
+          <ul style="margin-top: 4px;">${textToBullets(item.desc)}</ul>
+        </div>`).join('')}</section>`;
+    }
+  }
+
   if (data.cert.length) {
     html += `<section><h2>Certifications & Awards</h2><ul>
       ${data.cert.map(c => `<li><strong>${escapeHtml(c.name)}</strong> - ${escapeHtml(c.issuer)}</li>`).join('')}
@@ -263,7 +327,8 @@ function renderPreview() {
 
 function bindInput(id, key) {
   const el = document.getElementById(id);
-  el.value = data[key];
+  if(!el) return;
+  el.value = data[key] || '';
   el.addEventListener('input', e => { data[key] = e.target.value; renderPreview(); });
 }
 
@@ -289,6 +354,17 @@ function renderEduForm() {
     </div>`).join('');
 }
 
+function renderCustomForm() {
+  document.getElementById('custom-list').innerHTML = (data.customItems || []).map((item, i) => `
+    <div class="dynamic-item">
+      <button class="remove-btn" onclick="data.customItems.splice(${i}, 1); renderCustomForm(); renderPreview();">&times;</button>
+      <div class="input-group"><label>Item Title</label><input value="${escapeHtml(item.title)}" oninput="data.customItems[${i}].title=this.value; renderPreview()"></div>
+      <div class="input-group"><label>Subtitle</label><input value="${escapeHtml(item.subtitle)}" oninput="data.customItems[${i}].subtitle=this.value; renderPreview()"></div>
+      <div class="input-group"><label>Dates</label><input value="${escapeHtml(item.dates)}" oninput="data.customItems[${i}].dates=this.value; renderPreview()"></div>
+      <div class="input-group"><label>Bullets (Press Enter for new bullet)</label><textarea oninput="data.customItems[${i}].desc=this.value; renderPreview()">${escapeHtml(item.desc).replace(/\\n/g, '\n')}</textarea></div>
+    </div>`).join('');
+}
+
 function renderCertForm() {
   document.getElementById('cert-list').innerHTML = data.cert.map((c, i) => `
     <div class="dynamic-item">
@@ -309,6 +385,11 @@ function renderLangForm() {
 
 function addExp() { data.experience.push({title:'', company:'', dates:'', desc:''}); renderExpForm(); renderPreview(); }
 function addEdu() { data.education.push({degree:'', institution:'', year:'', location:''}); renderEduForm(); renderPreview(); }
+function addCustom() { 
+  window.data.customItems = window.data.customItems || [];
+  window.data.customItems.push({title:'', subtitle:'', dates:'', desc:''}); 
+  renderCustomForm(); renderPreview(); 
+}
 function addCert() { data.cert.push({name:'', issuer:''}); renderCertForm(); renderPreview(); }
 function addLang() { 
   window.data.languages = window.data.languages || [];
@@ -336,8 +417,14 @@ document.addEventListener('DOMContentLoaded', () => {
   bindInput('i-name', 'name'); bindInput('i-phone', 'phone'); bindInput('i-email', 'email');
   bindInput('i-linkedin', 'linkedin'); bindInput('i-location', 'location');
   bindInput('i-summary', 'summary'); bindInput('i-skills', 'skills');
-  document.getElementById('template-select').value = data.template;
+  bindInput('i-custom-title', 'customTitle');
+
+  // Initialize Custom Toggle State
+  document.getElementById('i-toggle-custom').checked = data.showCustom;
+  toggleCustomSection(data.showCustom);
+
   renderExpForm(); renderEduForm(); renderCertForm(); 
+  if(document.getElementById('custom-list')) renderCustomForm();
   if(document.getElementById('language-list')) renderLangForm();
   renderPreview();
 });
